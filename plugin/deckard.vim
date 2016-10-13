@@ -41,8 +41,17 @@ let s:VERSION = '0.2.7'
 " Switch to a slightly less insane language "
 DdPython2or3 << EOF
 
+import sys
 import json
 import vim
+
+if sys.version_info[0] >= 3:
+    import http.client as httplib
+else:
+    import httplib
+
+DdHost = "localhost:3325"
+
 
 def DdGetPath():
     #path = vim.eval('expand("%:p")')
@@ -74,8 +83,24 @@ def DdCursorHold():
         "charno": charno,
         "editor": "vim",
     }
-    print('Refreshing…', json.dumps(event))
+    try:
+        DdPost(event)
+    except Exception as e:
+        # Normal if Deckard is not running
+        pass
     return
+
+def DdPost(event):
+    " Fire and forget an event "
+    conn = httplib.HTTPConnection(DdHost, timeout=1)
+    conn.request(
+        "POST", "/event",
+        body=json.dumps(event),
+        headers={
+            "Content-Type": "application/json",
+        },
+    )
+    conn.close()
 
 EOF
 
@@ -84,13 +109,13 @@ EOF
 
     augroup deckard
         autocmd!
-        autocmd BufEnter * DdPython2or3 DdBufEnter()
-        autocmd BufWritePost * DdPython2or3 DdBufWritePost()
+        #autocmd BufEnter * DdPython2or3 DdBufEnter()
+        #autocmd BufWritePost * DdPython2or3 DdBufWritePost()
         autocmd CursorHold * DdPython2or3 DdCursorHold()
     augroup END
 
-    " For CursorHold
-    set updatetime=300
+    " For CursorHold "
+    set updatetime=200
 
 
 " Restore cpoptions "
