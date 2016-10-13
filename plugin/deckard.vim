@@ -52,6 +52,14 @@ else:
 
 DdHost = "localhost:3325"
 
+# Detect vim flavor
+DdEditor = "vim"
+if vim.eval("has('gui_running')") == "1":
+    DdEditor = "gvim"
+elif vim.eval("has('nvim')") == "1":
+    DdEditor = "nvim"
+# Detect current instance server name
+DdEditor += ":" + vim.eval("v:servername")
 
 def DdGetPath():
     #path = vim.eval('expand("%:p")')
@@ -87,7 +95,7 @@ def DdCursorHold():
         "path": path,
         "lineno": lineno - 1,
         "charno": charno,
-        "editor": "vim",
+        "editor": DdEditor,
     }
     try:
         DdPost("event", event)
