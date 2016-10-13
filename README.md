@@ -32,6 +32,15 @@ Deckard will then refresh its content.
 
 The default Vim way of jumping to the beginning of the current word is `b`. To go to the next word, `w`. But you can navigate in any other way as well.
 
+# Link Navigation
+
+Links in Deckard will open or reuse a GVim window.
+
+If you would like a different behaviour, edit `command` in `~/.dcode.json`.
+Please check out [DCode](https://github.com/deckardai/dcode), the universal
+code URL handler that powers Deckard's navigation. You may like to hack the
+perfect Vim support there.
+
 # Configuration
 
 This plugin triggers refreshes after 200ms of stopping at the start of a word. You can adjust it with this setting in your `.vimrc`:
