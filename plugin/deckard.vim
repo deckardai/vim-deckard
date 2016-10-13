@@ -65,11 +65,17 @@ def DdGetPath():
         return None
     return path
 
-def DdBufEnter():
-    print('New file!', vim.current)
-
 def DdBufWritePost():
-    print('Write!')
+    path = DdGetPath()
+    if not path:
+        return
+    try:
+        DdPost("change", {
+            "fullPath": path,
+        })
+    except Exception as e:
+        # Normal if Deckard is not running
+        pass
 
 def DdCursorHold():
     path = DdGetPath()
@@ -84,17 +90,17 @@ def DdCursorHold():
         "editor": "vim",
     }
     try:
-        DdPost(event)
+        DdPost("event", event)
     except Exception as e:
         # Normal if Deckard is not running
         pass
     return
 
-def DdPost(event):
+def DdPost(eventName, event):
     " Fire and forget an event "
     conn = httplib.HTTPConnection(DdHost, timeout=1)
     conn.request(
-        "POST", "/event",
+        "POST", "/" + eventName,
         body=json.dumps(event),
         headers={
             "Content-Type": "application/json",
@@ -109,8 +115,7 @@ EOF
 
     augroup deckard
         autocmd!
-        " autocmd BufEnter * DdPython2or3 DdBufEnter()
-        " autocmd BufWritePost * DdPython2or3 DdBufWritePost()
+        autocmd BufWritePost * DdPython2or3 DdBufWritePost()
         autocmd CursorHold * DdPython2or3 DdCursorHold()
     augroup END
 
