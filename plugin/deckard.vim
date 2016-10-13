@@ -65,7 +65,6 @@ try:
     DdOk = True
 except Exception as e:
     # httplib can fail mysteriously in unusual environments, ex. git commit
-    print(e)
     DdOk = False
 
 def DdGetPath():
