@@ -109,8 +109,8 @@ EOF
 
     augroup deckard
         autocmd!
-        #autocmd BufEnter * DdPython2or3 DdBufEnter()
-        #autocmd BufWritePost * DdPython2or3 DdBufWritePost()
+        " autocmd BufEnter * DdPython2or3 DdBufEnter()
+        " autocmd BufWritePost * DdPython2or3 DdBufWritePost()
         autocmd CursorHold * DdPython2or3 DdCursorHold()
     augroup END
 
