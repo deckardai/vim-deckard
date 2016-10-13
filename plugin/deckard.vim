@@ -41,25 +41,32 @@ let s:VERSION = '0.2.7'
 " Switch to a slightly less insane language "
 DdPython2or3 << EOF
 
+DdHost = "localhost:3325"
+
 import sys
 import json
 import vim
 
-if sys.version_info[0] >= 3:
-    import http.client as httplib
-else:
-    import httplib
+try:
+    if sys.version_info[0] >= 3:
+        import http.client as httplib
+    else:
+        import httplib
 
-DdHost = "localhost:3325"
+    # Detect vim flavor
+    DdEditor = "vim"
+    if vim.eval("has('gui_running')") == "1":
+        DdEditor = "gvim"
+    elif vim.eval("has('nvim')") == "1":
+        DdEditor = "nvim"
+    # Detect current instance server name
+    DdEditor += ":" + vim.eval("v:servername")
 
-# Detect vim flavor
-DdEditor = "vim"
-if vim.eval("has('gui_running')") == "1":
-    DdEditor = "gvim"
-elif vim.eval("has('nvim')") == "1":
-    DdEditor = "nvim"
-# Detect current instance server name
-DdEditor += ":" + vim.eval("v:servername")
+    DdOk = True
+except Exception as e:
+    # httplib can fail mysteriously in unusual environments, ex. git commit
+    print(e)
+    DdOk = False
 
 def DdGetPath():
     #path = vim.eval('expand("%:p")')
@@ -74,10 +81,10 @@ def DdGetPath():
     return path
 
 def DdBufWritePost():
-    path = DdGetPath()
-    if not path:
-        return
     try:
+        path = DdGetPath()
+        if not path:
+            return
         DdPost("change", {
             "fullPath": path,
         })
@@ -86,23 +93,22 @@ def DdBufWritePost():
         pass
 
 def DdCursorHold():
-    path = DdGetPath()
-    if not path:
-        return
-    (lineno, charno) = vim.current.window.cursor
-
-    event = {
-        "path": path,
-        "lineno": lineno - 1,
-        "charno": charno,
-        "editor": DdEditor,
-    }
     try:
+        path = DdGetPath()
+        if not path:
+            return
+        (lineno, charno) = vim.current.window.cursor
+
+        event = {
+            "path": path,
+            "lineno": lineno - 1,
+            "charno": charno,
+            "editor": DdEditor,
+        }
         DdPost("event", event)
     except Exception as e:
         # Normal if Deckard is not running
         pass
-    return
 
 def DdPost(eventName, event):
     " Fire and forget an event "
@@ -123,8 +129,8 @@ EOF
 
     augroup deckard
         autocmd!
-        autocmd BufWritePost * DdPython2or3 DdBufWritePost()
-        autocmd CursorHold * DdPython2or3 DdCursorHold()
+        autocmd BufWritePost * DdPython2or3 DdOk and DdBufWritePost()
+        autocmd CursorHold * DdPython2or3 DdOk and DdCursorHold()
     augroup END
 
     " For CursorHold "
