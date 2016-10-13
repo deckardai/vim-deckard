@@ -36,7 +36,6 @@ The default Vim way of jumping to the beginning of the current word is `b`. To g
 
 Links in Deckard will open or reuse a GVim window.
 
-If you would like a different behaviour, edit `command` in `~/.dcode.json`.
 Please check out [DCode](https://github.com/deckardai/dcode), the universal
 code URL handler that powers Deckard's navigation. You may like to hack the
 perfect Vim support there.
