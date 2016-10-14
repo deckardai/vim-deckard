@@ -59,8 +59,6 @@ try:
         DdEditor = "gvim"
     elif vim.eval("has('nvim')") == "1":
         DdEditor = "nvim"
-    # Detect current instance server name
-    DdEditor += ":" + vim.eval("v:servername")
 
     DdOk = True
 except Exception as e:
@@ -102,7 +100,8 @@ def DdCursorHold():
             "path": path,
             "lineno": lineno - 1,
             "charno": charno,
-            "editor": DdEditor,
+            # Detect current instance server name
+            "editor": DdEditor + ":" + vim.eval("v:servername"),
         }
         DdPost("event", event)
     except Exception as e:
