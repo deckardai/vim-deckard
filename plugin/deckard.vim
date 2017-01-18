@@ -44,7 +44,9 @@ DdPython2or3 << EOF
 DdHost = "localhost:3325"
 
 import sys
+import os
 import json
+from time import time
 import vim
 
 try:
@@ -59,6 +61,9 @@ try:
         DdEditor = "gvim"
     elif vim.eval("has('nvim')") == "1":
         DdEditor = "nvim"
+    # Get a unique name
+    DdEditor += ":" + str(int(time()))
+    # Or ":" + vim.eval("v:servername")
 
     DdOk = True
 except Exception as e:
@@ -101,7 +106,7 @@ def DdCursorHold():
             "lineno": lineno - 1,
             "charno": charno,
             # Detect current instance server name
-            "editor": DdEditor + ":" + vim.eval("v:servername"),
+            "editor": DdEditor,
         }
         DdPost("event", event)
     except Exception as e:
@@ -119,6 +124,25 @@ def DdPost(eventName, event):
         },
     )
     conn.close()
+
+if DdOk:
+    # Import the module shipping with the plugin
+    thisFile = vim.eval("expand('<sfile>:p')")
+    sys.path.insert(0, os.path.dirname(thisFile))
+    import ddEditorLib
+
+    def DdOpenPath(path, line=0, column=0):
+        path = path.replace("\\", "\\\\").replace(" ", "\ ").replace("|", "\|")
+        cmd = "edit %s | call cursor(%i,%i) | redraw!" % (path, line, column)
+        print(cmd)
+        vim.command(cmd)
+
+    ddEditorLib.listen(
+        name=DdEditor,
+        functions={
+            "openPath": DdOpenPath,
+        }
+    )
 
 EOF
 
