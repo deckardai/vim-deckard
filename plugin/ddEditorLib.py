@@ -22,7 +22,7 @@ def hardcoreJsonRpc(socketPath, functions):
     server = socket.socket( socket.AF_UNIX, socket.SOCK_DGRAM )
     server.bind(socketPath)
 
-    print("Listening...", socketPath)
+    #print("Listening...", socketPath)
     while True:
         datagram = server.recv(1024)
         if not datagram:
