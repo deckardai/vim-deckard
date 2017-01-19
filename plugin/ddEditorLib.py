@@ -29,7 +29,7 @@ def hardcoreJsonRpc(socketPath, functions):
             break
 
         try:
-            j = json.loads(datagram)
+            j = json.loads(datagram.decode("utf-8"))
             # Handle method
             funcName = j.get("method")
             if funcName == "exit":
